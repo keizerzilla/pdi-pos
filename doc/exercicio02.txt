@@ -1,0 +1,21 @@
+Trabalho #02: Kernels
+
+Questão Única: dados os seguintes kernels de imagem:
+- laplaciano
+- gaussiano
+- mediana
+- moda
+Fazer:
+1) Demonstrar como estes são obtidos
+2) Aplicá-los em imagens de benchmark (lenna, crowd2, cameraman e tutu)
+
+Notas:
+- A aplicacao de um kernel eh a aplicacao de uma convolucao
+- Kernel eh, portanto, um "matriz de convolucao"
+- O kernel laplaciano eh usado para deteccao de bordas
+- Os kernels gaussiano, mediana e moda sao usados para borramento
+- São necessarios 3 componentes quando aplicamos uma convolucao em imagem:
+  - uma imagem de entrada
+  - um kernel a ser convoluido
+  - uma imagem de saida que guardarah o resultado da operacao
+
