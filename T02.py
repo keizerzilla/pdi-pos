@@ -3,6 +3,17 @@ import numpy as np
 from scipy.stats import mode
 from skimage.exposure import rescale_intensity
 
+# Cria copia de uma imagem com adicao de ruido gaussiano
+def add_gaussian_noise(image, mean=0.0, var=1.0):
+	row, col = image.shape
+	sigma = var**0.5
+	gauss = np.random.normal(mean, sigma, (row, col))
+	gauss = gauss.reshape(row, col)
+	noisy = image + gauss
+	
+	return noisy
+
+# Aplica convolucao de um kernel em uma imagem alvo
 def convolve(image, kernel):
 	isMedian = False
 	isMode = False
@@ -59,8 +70,16 @@ kernels = {
 for i in images:
 	for name, kernel in kernels.items():
 		img = cv2.imread(i, cv2.IMREAD_GRAYSCALE)
+		noisy = add_gaussian_noise(img, 0.0, 10.0)
+
 		print("aplicando kernel {} em {}".format(name, i))
-		ans = convolve(img, kernel)
-		imgpath = "exercicio02/" + i.replace(".jpg", "_{}.jpg".format(name))
-		cv2.imwrite(imgpath, ans)
+		ans_raw = convolve(img, kernel)
+		ans_noisy = convolve(noisy, kernel)
+		
+		impath_raw = "T02/" + i.replace(".jpg", "_{}.jpg".format(name))
+		impath_noisy = "T02/" + i.replace(".jpg", "_noisy.jpg")
+		impath_cnoisy = "T02/" + i.replace(".jpg", "_noisy_{}.jpg".format(name))
+		cv2.imwrite(impath_raw, ans_raw)
+		cv2.imwrite(impath_noisy, noisy)
+		cv2.imwrite(impath_cnoisy, ans_noisy)
 		
