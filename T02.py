@@ -67,19 +67,25 @@ kernels = {
 	"mode" : "mode"
 }
 
-for i in images:
+for img in images:
+	raw = cv2.imread(img, cv2.IMREAD_GRAYSCALE)
+	noisy = add_gaussian_noise(raw, 0.0, 20.0)
+	
+	basepath = "T02/{}/".format(img.replace(".jpg", ""))
+	pathRaw = basepath + "raw.jpg"
+	pathNoisy = basepath + "noisy.jpg"
+	
+	cv2.imwrite(pathRaw, raw)
+	cv2.imwrite(pathNoisy, noisy)
 	for name, kernel in kernels.items():
-		img = cv2.imread(i, cv2.IMREAD_GRAYSCALE)
-		noisy = add_gaussian_noise(img, 0.0, 10.0)
-
-		print("aplicando kernel {} em {}".format(name, i))
-		ans_raw = convolve(img, kernel)
-		ans_noisy = convolve(noisy, kernel)
+		print("aplicando kernel {} em {}".format(name, img))
 		
-		impath_raw = "T02/" + i.replace(".jpg", "_{}.jpg".format(name))
-		impath_noisy = "T02/" + i.replace(".jpg", "_noisy.jpg")
-		impath_cnoisy = "T02/" + i.replace(".jpg", "_noisy_{}.jpg".format(name))
-		cv2.imwrite(impath_raw, ans_raw)
-		cv2.imwrite(impath_noisy, noisy)
-		cv2.imwrite(impath_cnoisy, ans_noisy)
+		kernelRaw = convolve(raw, kernel)
+		kernelNoisy = convolve(noisy, kernel)
+		
+		pathKernelRaw = basepath + "raw_{}.jpg".format(name)
+		pathKernelNoisy = basepath + "noisy_{}.jpg".format(name)
+		
+		cv2.imwrite(pathKernelRaw, kernelRaw)
+		cv2.imwrite(pathKernelNoisy, kernelNoisy)
 		
