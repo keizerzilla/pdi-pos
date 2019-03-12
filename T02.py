@@ -48,7 +48,7 @@ def convolve(image, kernel):
 	
 	return output
 
-images = ["cameraman.jpg", "crowd2.jpg", "lenna.jpg", "tutu.jpg"]
+images = ["cameraman.jpg", "crowd2.jpg", "lenna.jpg"]
 
 laplacian = np.array((
             [0,  1, 0],
@@ -56,24 +56,22 @@ laplacian = np.array((
             [0,  1, 0]), dtype="int")
 
 gaussian = np.array((
-           [1.0/16.0, 2.0/16.0, 1.0/16.0],
-           [2.0/16.0, 4.0/16.0, 2.0/16.0],
-           [1.0/16.0, 2.0/16.0, 1.0/16.0]), dtype="float")
+           [1.0, 2.0, 1.0],
+           [2.0, 4.0, 2.0],
+           [1.0, 2.0, 1.0]), dtype="float") * (1.0/16.0)
 
 kernels = {
-	"laplacian" : laplacian,
-	"gaussian" : gaussian,
-	"median" : "median",
-	"mode" : "mode"
+	"gaussian" : gaussian
 }
 
 for img in images:
 	raw = cv2.imread(img, cv2.IMREAD_GRAYSCALE)
 	noisy = add_gaussian_noise(raw, 0.0, 20.0)
 	
-	basepath = "T02/{}/".format(img.replace(".jpg", ""))
-	pathRaw = basepath + "raw.jpg"
-	pathNoisy = basepath + "noisy.jpg"
+	subject = img.replace(".jpg", "")
+	basepath = "T02/{}/".format(subject)
+	pathRaw = basepath + "{}-raw.jpg".format(subject)
+	pathNoisy = basepath + "{}-noisy.jpg".format(subject)
 	
 	cv2.imwrite(pathRaw, raw)
 	cv2.imwrite(pathNoisy, noisy)
@@ -83,8 +81,8 @@ for img in images:
 		kernelRaw = convolve(raw, kernel)
 		kernelNoisy = convolve(noisy, kernel)
 		
-		pathKernelRaw = basepath + "raw_{}.jpg".format(name)
-		pathKernelNoisy = basepath + "noisy_{}.jpg".format(name)
+		pathKernelRaw = basepath + "{}-raw-{}.jpg".format(subject, name)
+		pathKernelNoisy = basepath + "{}-noisy-{}.jpg".format(subject, name)
 		
 		cv2.imwrite(pathKernelRaw, kernelRaw)
 		cv2.imwrite(pathKernelNoisy, kernelNoisy)
