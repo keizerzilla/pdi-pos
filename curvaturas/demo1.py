@@ -1,6 +1,29 @@
+import math
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+
+def k_curvature(im, k=3):
+	zeros = np.pad(im, k, 'constant', constant_values=0)
+	#zeros = zeros.astype(float)
+	kurv_img = np.zeros_like(im)
+	
+	rows, cols = im.shape
+	for i in range(rows):
+		for j in range(cols):
+			alpha = zeros[i + k, j] - zeros[i - k, j]
+			epslon = zeros[i, j + k] - 2*zeros[i, j] + zeros[i, j - k]
+			gama = zeros[i, j + k] - zeros[i, j - k]
+			delta = zeros[i + k, j] - 2*zeros[i, j] + zeros[i - k, j]
+			
+			kurv = (alpha*epslon - gama*delta) / (alpha*alpha + gama*gama)**(3/2)
+			if math.isnan(kurv):
+				kurv = 0
+			
+			kurv_img[i, j] = kurv
+	
+	return kurv_img
+	
 
 def plot_figs(fig1, fig2, suptitle, path=None, t1=None, t2=None):
 	plt.subplot(1, 2, 1)
@@ -20,21 +43,17 @@ def plot_figs(fig1, fig2, suptitle, path=None, t1=None, t2=None):
 	plt.close()
 
 if __name__ == "__main__":
-	#im = cv2.imread("../lenna.jpg")
 	im = cv2.imread("../rect1.bmp")
 	imgray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+	
 	ret, tresh = cv2.threshold(imgray, 127, 255, 0)
+	
 	contours, _ = cv2.findContours(tresh.copy(),
 		                           cv2.RETR_EXTERNAL,
-		                           cv2.CHAIN_APPROX_SIMPLE)
-	im2 = im.copy()
-	cv2.drawContours(im2, contours, -1, (0, 255, 0), 4)
+		                           cv2.CHAIN_APPROX_NONE)
+	s = np.zeros_like(tresh)
+	cv2.drawContours(s, contours, -1, (255, 255, 255), 1)
 	
-	print(contours)
-	ans = tresh[tuple(contours)]
-	print(ans)
-	
-	"""
 	plt.subplot(1, 3, 1)
 	plt.imshow(imgray, cmap="gray")
 	plt.title("original")
@@ -42,8 +61,20 @@ if __name__ == "__main__":
 	plt.imshow(tresh, cmap="gray")
 	plt.title("limiarização")
 	plt.subplot(1, 3, 3)
-	plt.imshow(im2, cmap="gray")
+	plt.imshow(s, cmap="gray")
 	plt.title("contornos encontrados")
 	plt.show()
 	plt.close()
-	"""
+	
+	corners = k_curvature(s)
+	
+	plt.imshow(corners, cmap="gray")
+	plt.show()
+	plt.close()
+	
+	x = np.ravel(corners)
+	normalized = (x-min(x))/(max(x)-min(x))
+	
+	plt.plot(normalized)
+	plt.show()
+	
