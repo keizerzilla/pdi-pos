@@ -4,38 +4,18 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
 df = pd.read_csv("dataset_funceme_raspado.csv")
+df = df.drop(["ano", "mes", "dia31"], axis=1)
 
-data = []
-for d in range(12):
-	mes = d+1
-	l = [mes] + list(df[df["mes"] == mes].mean().drop(["ano", "mes"]))
-	data.append(l)
-
-header = ["mes"] + [str(d+1) for d in range(31)]
-tf = pd.DataFrame(data, columns=header)
-"""
-i=1
-for index, row in tf.iterrows():
-	d = row.drop(["mes"])
-	
-	plt.subplot(3, 4, i)
-	d.plot()
-	
-	i += 1
-
-plt.show()
-plt.close()
-"""
-tf = tf.drop(["mes"], axis=1)
 pca = PCA()
-pca.fit(tf)
+pca.fit(df)
+tdata = pca.transform(df)
 
-i=1
-for c in pca.components_:
-	plt.subplot(3, 4, i)
+i = 1
+for c, v in zip(pca.components_, pca.singular_values_):
+	plt.subplot(5, 6, i)
 	plt.plot(c)
+	plt.title("{}".format(round(v, 4)))
 	i += 1
 
 plt.show()
-plt.close()
 

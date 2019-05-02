@@ -20,15 +20,3 @@ header = ["ano", "mes"] + ["dia{}".format(d+1) for d in range(31)]
 df = pd.DataFrame(data, columns=header)
 df.to_csv("dataset_funceme_raspado.csv", index=None)
 
-# dataset com meses como atributos
-data = df.drop(["ano"], axis=1)
-transp = {d+1 : [] for d in range(12)}
-
-for index, row in data.iterrows():
-	m = row["mes"]
-	s = list(row.drop(["mes"]))
-	transp[m] += s
-
-transp = pd.DataFrame(transp)
-transp.to_csv("dataset_funceme_pormes.csv", index=None)
-

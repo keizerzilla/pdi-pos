@@ -1,0 +1,6 @@
+- o artigo de referencia nao especifica o valor dos hiperparamentros usados para
+  calibrar os classificadores
+- alguns classificadores sao nao-deterministicos (mais repeticos para validar,
+  nao especificado no artigo de referencia)
+- estudar boosting, bagging e stacking pra implementar o stacking do artigo de
+  referencia (fonte: https://tinyurl.com/y2rgpg3o)
