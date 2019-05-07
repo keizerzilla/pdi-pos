@@ -1,0 +1,9 @@
+- problema de variaveis canonicas em um problema especifico [09/05]
+
+- wavelet haar em duas aplicacoes (filtragem, compressao, etc...) [16/05]
+  > ver piramide de decomposicao
+  > resultado da filtragem/compressao
+  > se aplicacao for compressao, usar PSNR
+
+OBS: metricas para calculo de erro: MSE e SSIM
+
