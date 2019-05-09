@@ -5,10 +5,10 @@ from sklearn.metrics import accuracy_score
 df = pd.read_csv("parkinsons.csv")
 print("#atributos:", len(df.columns))
 
-scores = pd.read_csv("scores.csv")
-f1s = pd.read_csv("f1s.csv")
-mccs = pd.read_csv("mccs.csv")
-voting = pd.read_csv("voting.csv")
+scores = pd.read_csv("results/scores.csv")
+f1s = pd.read_csv("results/f1s.csv")
+mccs = pd.read_csv("results/mccs.csv")
+voting = pd.read_csv("results/voting.csv")
 
 print(scores.mean())
 print(f1s.mean())

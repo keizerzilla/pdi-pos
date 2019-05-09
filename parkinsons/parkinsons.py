@@ -14,8 +14,9 @@ from sklearn.neural_network import MLPClassifier as MLP
 from sklearn.naive_bayes import GaussianNB as NaiveBayes
 from sklearn.neighbors import KNeighborsClassifier as KNN
 from sklearn.ensemble import RandomForestClassifier as RandomForest
-
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.datasets import load_iris
+from sklearn.model_selection import KFold
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
@@ -95,10 +96,13 @@ def reproducing_sakar():
 		X_train = scaler.transform(X_train)
 		X_test = scaler.transform(X_test)
 		
-		pca = PCA()
-		pca.fit(X_train)
+		#pca = PCA(n_components=50)
+		pca = LDA()
+		pca.fit(X_train, y_train)
 		X_train_pca = pca.transform(X_train)
 		X_test_pca = pca.transform(X_test)
+		
+		print(X_train_pca.shape)
 		
 		predictions = []
 		for name, classifier in classifiers.items():
@@ -128,92 +132,60 @@ def reproducing_sakar():
 		print()
 		
 	scores = pd.DataFrame(scores)
-	scores.to_csv("scores.csv", index=None)
+	scores.to_csv("results/scores.csv", index=None)
 
 	f1s = pd.DataFrame(f1s)
-	f1s.to_csv("f1s.csv", index=None)
+	f1s.to_csv("results/f1s.csv", index=None)
 
 	mccs = pd.DataFrame(mccs)
-	mccs.to_csv("mccs.csv", index=None)
+	mccs.to_csv("results/mccs.csv", index=None)
 
 	voting = pd.DataFrame(voting)
-	voting.to_csv("voting.csv", index=None)
+	voting.to_csv("results/voting.csv", index=None)
 
 	print(scores)
 	print(f1s)
 	print(mccs)
 	print(voting)
 
-def griding():
-	print("Gridsearching to find best parameters...")
+def lda_plot():
+	df = pd.read_csv("parkinsons.csv")
+	df = df.drop(["gender", "id"], axis=1)
+	X = df.drop(["class"], axis=1)
+	y = df["class"]
 	
-	# Number of random trials
-	NUM_TRIALS = 30
+	lda = LDA(n_components=1)
+	lda.fit(X, y)
+	X_lda = lda.transform(X)
 	
-	# Load the dataset
-	iris = load_iris()
-	X_iris = iris.data
-	y_iris = iris.target
+	pca = PCA(n_components=1)
+	pca.fit(X, y)
+	X_pca = pca.transform(X)
 	
-	# Set up possible values of parameters to optmizer over
-	p_grid = {"C"     : [0.1, 1, 10, 100],
-	          "gamma" : [.001, .01, .1]}
+	colors = ["navy", "darkorange"]
 	
-	# We will use a Support Vector Classifier with "rbf" kernel
-	svm = SVM(kernel="rbf")
+	plt.subplot(1, 2, 1)
+	for color, i, name in zip(colors, [0, 1], ["Saudável", "Parkinson"]):
+		plt.scatter(X_lda[y == i], X_lda[y == i], color=color, lw=2, label=name)
 	
-	# Arrays to score scores
-	non_nested_scores = np.zeros(NUM_TRIALS)
-	nested_scores = np.zeros(NUM_TRIALS)
+	plt.legend(loc="best", shadow=False, scatterpoints=1)
+	plt.title("Variáveis canônicas na base Sakar et al.")
 	
-	# Loop for each trial
-	for i in range(NUM_TRIALS):
-		# Choose cross-validation techniques for the inner and outer loops,
-		# independently of the dataset.
-		# E.g "GroupKFold", "LeaveOneOut", "LeaveOneGroupOut", etc.
-		inner_cv = KFold(n_splits=4, shuffle=True, random_state=i)
-		outer_cv = KFold(n_splits=4, shuffle=True, random_state=i)
-		
-		# Non_nested parameter search and scoring
-		clf = GridSearchCV(estimator=svm, param_grid=p_grid, cv=inner_cv)
-		clf.fit(X_iris, y_iris)
-		print(clf.best_params_, ">", clf.best_score_)
-		non_nested_scores[i] = clf.best_score_
-		
-		# Nested CV with parameter optimization
-		nested_score = cross_val_score(clf, X=X_iris, y=y_iris, cv=outer_cv)
-		nested_scores[i] = nested_score.mean()
 	
-	score_difference = non_nested_scores - nested_scores
 	
-	print("Average difference of {0:6f} with std. dev. of {1:6f}.".format(
-	       score_difference.mean(), score_difference.std()))
+	plt.subplot(1, 2, 2)
+	for color, i, name in zip(colors, [0, 1], ["Saudável", "Parkinson"]):
+		plt.scatter(X_pca[y == i], X_pca[y == i], color=color, lw=2, label=name)
 	
-	# Plot scores on each trial for nested and non-nested CV
-	plt.figure()
-	plt.subplot(211)
-	non_nested_scores_line, = plt.plot(non_nested_scores, color="r")
-	nested_line, = plt.plot(nested_scores, color="b")
-	plt.ylabel("score", fontsize="14")
-	plt.legend([non_nested_scores_line, nested_line],
-	           ["Non-Nested CV", "Nested CV"],
-	           bbox_to_anchor=(0, .4, .5, 0))
-	plt.title("Non-Nested and Nested Cross Validation on Iris Dataset",
-	          x=.5, y=1.1, fontsize="15")
-	
-	# Plot bar chart of the difference
-	difference_plot = plt.bar(range(NUM_TRIALS), score_difference)
-	plt.xlabel("Individual Trial #")
-	plt.legend([difference_plot],
-	           ["Non-Nested CV - Nested CV Score"],
-	           bbox_to_anchor=(0, 1, .8, 0))
-	plt.ylabel("score difference", fontsize="14")
+	plt.legend(loc="best", shadow=False, scatterpoints=1)
+	plt.title("Redução por PCA na base Sakar et al.")
 	
 	plt.show()
 	
+
 if __name__ == "__main__":
 	warnings.filterwarnings("ignore")
 	
-	griding()
+	lda_plot()
 	
 	
